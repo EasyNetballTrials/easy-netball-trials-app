@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Download Court Boards Workbook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; background:#f7f7fb; margin:0; padding:0;}
+    .wrap {max-width:600px; margin:60px auto; padding:0 16px;}
+    .card {background:#fff; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.08); padding:28px; text-align:center;}
+    h1 {margin:0 0 16px; font-size:24px;}
+    p {margin:0 0 12px; color:#444;}
+    .btn {
+      display:inline-block; background:#2b6cb0; color:#fff; border:none; border-radius:12px;
+      padding:14px 22px; font-size:18px; font-weight:600; text-decoration:none;
+    }
+    .btn:hover { background:#225ea8; }
+    .flash {background:#fff3cd; border:1px solid #ffe69c; color:#8a6d3b; padding:10px 12px; border-radius:10px; margin-bottom:12px;}
+    .meta {font-size:14px; color:#666; margin-top:10px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Your Excel Workbook is Ready</h1>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for m in messages %}
+            <div class="flash">{{ m }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <p><strong>Summary</strong></p>
+      <p class="meta">
+        Players: {{ players }} &nbsp;|&nbsp;
+        Rounds: {{ rounds }} &nbsp;|&nbsp;
+        Courts: {{ courts }} &nbsp;|&nbsp;
+        Numbering: {{ number_players }} &nbsp;|&nbsp;
+        Min P1: {{ min_p1 }}<br/>
+        Generated: {{ timestamp }}
+      </p>
+
+      <p style="margin-top:18px;">Click below to download your generated Court Boards workbook:</p>
+      <p><a class="btn" href="{{ url_for('download_file', filename=filename) }}">⬇ Download Excel File</a></p>
+    </div>
+  </div>
+</body>
+</html>
