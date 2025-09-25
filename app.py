@@ -7,13 +7,13 @@ from werkzeug.utils import secure_filename
 from scheduler.csv_ingest import read_players_csv_to_df
 from scheduler.capacity import capacity_report
 from scheduler.template_writer import write_into_template
-from scheduler.webbridge import sanity_log_players_header   # ✅ debug helper
+from scheduler.webbridge import set_control_flags, sanity_log_players_header
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ---- Auto-locate your macro template (.xlsm) in one of these folders ----
+# ---- Locate macro template ----
 TEMPLATE_CANDIDATES = [
     os.path.join(APP_ROOT, 'app_data',  'Netball_Trials_Scheduler Download for Web.xlsm'),
     os.path.join(APP_ROOT, 'template',  'Netball_Trials_Scheduler Download for Web.xlsm'),
@@ -40,16 +40,6 @@ def allowed_file(filename: str) -> bool:
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # ---- Read form params ----
-        try:
-            num_courts = int(request.form.get('num_courts', '2'))
-            num_rounds = int(request.form.get('num_rounds', '10'))
-            numbering  = request.form.get('numbering', 'yes').lower() == 'yes'
-            show_prefs = request.form.get('show_prefs', 'no').lower() == 'yes'
-        except Exception:
-            flash('Invalid parameters. Please check number of courts/rounds.', 'error')
-            return redirect(url_for('index'))
-
         # ---- File upload ----
         f = request.files.get('players_csv')
         if not f or f.filename.strip() == '':
@@ -65,7 +55,7 @@ def index():
         out_path = os.path.join(UPLOAD_FOLDER, out_name)
         f.save(csv_path)
 
-        # ---- Read CSV robustly (any header order; Number optional) ----
+        # ---- Read CSV robustly ----
         try:
             df = read_players_csv_to_df(csv_path)
         except Exception as e:
@@ -73,22 +63,30 @@ def index():
             return redirect(url_for('index'))
 
         # ---- Capacity check BEFORE writing template ----
-        rep = capacity_report(df, num_courts=num_courts, num_rounds=num_rounds)
+        rep = capacity_report(df, num_courts=2, num_rounds=10)  # placeholders, Excel will re-ask
         if not rep['ok']:
             return render_template('result.html', report=rep, download_url=None)
 
-        # ---- Write into your macro template (preserves VBA/hidden sheets) ----
+        # ---- Write into your macro template ----
         try:
             write_into_template(
                 template_path=TEMPLATE_XLSM,
                 out_path=out_path,
                 df_players=df,
-                num_courts=num_courts,
-                num_rounds=num_rounds,
-                numbering=numbering,
-                show_prefs=show_prefs,  # writes YES/NO to Control
+                num_courts=2,      # placeholder
+                num_rounds=10,     # placeholder
+                numbering=False,   # placeholder
+                show_prefs=False,  # placeholder
             )
-            # ✅ Debug: print out Players header row that was written
+            # Mark Control!Z1 = "PENDING" so Excel prompts on open
+            set_control_flags(
+                xlsm_path=out_path,
+                num_courts=2,
+                num_rounds=10,
+                numbering=False,
+                show_prefs=False,
+                pending=True,
+            )
             print(sanity_log_players_header(out_path))
 
         except Exception as e:
