@@ -1,48 +1,39 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Your Netball Trials Workbook</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Easy Netball Trials – Result</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
-    :root { --bg:#f6f8fb; --card:#ffffff; --accent:#16a34a; --muted:#6b7280; }
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:#111827; }
-    .wrap { max-width: 760px; margin: 40px auto; padding: 0 20px; }
-    .card { background:var(--card); border-radius:14px; box-shadow: 0 8px 24px rgba(0,0,0,.06); padding:24px; }
-    h1 { margin:0 0 8px; font-size:1.8rem; }
-    .meta { color:var(--muted); margin-bottom:18px; }
-    a.button { display:inline-block; margin:10px 0 0; padding:12px 16px; border-radius:10px; background:var(--accent); color:#fff; text-decoration:none; font-weight:700; }
-    .grid { display:grid; gap:8px; grid-template-columns: 160px 1fr; margin: 12px 0 0; }
-    .label { color:var(--muted); }
-    .row { display:contents; }
-    .actions { margin-top: 18px; }
-    .secondary { margin-left: 10px; color:#2563eb; text-decoration:none; }
+    body { margin: 20px; }
+    .container { max-width: 700px; }
+    .form-label { font-weight: bold; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Workbook Ready</h1>
-      <div class="meta">Generated at {{ timestamp }}</div>
+  <div class="container">
+    <h1 class="mb-4">Easy Netball Trials – Result</h1>
 
-      <div class="grid">
-        <div class="row"><div class="label">File</div><div><a href="{{ url_for('download_file', filename=filename) }}">{{ filename }}</a></div></div>
-        <div class="row"><div class="label">Players</div><div>{{ players }}</div></div>
-        <div class="row"><div class="label">Rounds</div><div>{{ rounds }}</div></div>
-        <div class="row"><div class="label">Courts</div><div>{{ courts }}</div></div>
-        <div class="row"><div class="label">Numbers</div><div>{{ number_players }}</div></div>
-        <div class="row"><div class="label">Show Prefs</div><div>{{ show_prefs }}</div></div>
+    {% if report %}
+      <div class="alert alert-{{ 'danger' if not report.ok else 'success' }}">
+        {{ report.message }}
       </div>
 
-      <div class="actions">
-        <a class="button" href="{{ url_for('download_file', filename=filename) }}">Download .xlsm</a>
-        <a class="secondary" href="{{ url_for('index') }}">Generate another</a>
-      </div>
+      {% if not report.ok %}
+        <ul>
+          {% for issue in report.issues %}
+            <li>{{ issue }}</li>
+          {% endfor %}
+        </ul>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Back</a>
+      {% endif %}
+    {% endif %}
 
-      <p style="margin-top:16px; color:#6b7280;">
-        Tip: When opening in Excel, click “Enable Content” for macros so Court Boards, drop-downs, and alerts work.
-      </p>
-    </div>
+    {% if download_url %}
+      <p class="mt-4">Your workbook is ready:</p>
+      <a href="{{ download_url }}" class="btn btn-primary">Download Excel (.xlsm)</a>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">Generate Another</a>
+    {% endif %}
   </div>
 </body>
 </html>
