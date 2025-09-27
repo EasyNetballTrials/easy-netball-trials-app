@@ -3,3 +3,17 @@ __pycache__/
 uploads/
 results/
 venv/
+
+# Excel workbooks generated on the fly
+*.xlsm
+*.xlsx
+
+# Local test files
+*.csv
+
+# Editor/OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
