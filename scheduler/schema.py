@@ -9,16 +9,13 @@ VALID_POS = {"GS","GA","WA","C","WD","GD","GK",""}
 def _norm_row(d: dict) -> dict:
     out = {h: (d.get(h, "") or "").strip() for h in REQUIRED_HEADERS}
 
-    # Active: blank/YES/Y -> "", NO/N -> "NO"
     a = out["Active"].upper()
-    out["Active"] = "" if a in {"","YES","Y"} else "NO"
+    out["Active"] = "" if a in {"", "YES", "Y"} else "NO"
 
-    # Positions uppercase, coerce invalid to ""
     for k in ("PreferredPos1","PreferredPos2","PreferredPos3"):
         val = out[k].upper().replace(" ", "")
         out[k] = val if val in VALID_POS else ""
 
-    # Seed default 3
     s = out["Seed"].strip()
     out["Seed"] = s if s in {"1","2","3"} else "3"
     return out
