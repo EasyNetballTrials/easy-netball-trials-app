@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Flask, request, render_template, send_file, abort
 from werkzeug.utils import secure_filename
 from scheduler.schema import validate_and_normalize_csv
-from excel_writer import inject_players_csv
+from scheduler.excel_writer import inject_players_csv
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
@@ -42,4 +42,5 @@ def build():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000, debug=True)
+
 
